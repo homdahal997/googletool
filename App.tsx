@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { SeriesBible } from './types';
+import { SeriesBible, BibleUpdater } from './types';
 import { IntroModal } from './components/IntroModal';
 import { SeriesArchitectNode } from './components/SeriesArchitectNode';
 import { EpisodeDashboard } from './components/EpisodeDashboard';
@@ -24,8 +24,8 @@ export default function App() {
     setBible(prev => prev ? { ...prev, activeEpisodeIndex: null } : null);
     setActiveView('dashboard');
   };
-  const updateBible = (updates: Partial<SeriesBible>) => {
-    setBible(prev => prev ? { ...prev, ...updates } : null);
+  const updateBible = (updates: Partial<SeriesBible> | BibleUpdater) => {
+    setBible(prev => prev ? { ...prev, ...(typeof updates === 'function' ? updates(prev) : updates) } : null);
   };
   const handleExport = async () => {
     if (!bible) return;
@@ -67,10 +67,10 @@ export default function App() {
             <span className="material-symbols-outlined text-black text-3xl font-black">account_tree</span>
           </div>
           <div>
-            <h1 className="font-black text-base uppercase tracking-[0.25em] italic text-white leading-none">
+            <h1 className="font-bold text-base uppercase tracking-widest italic text-white leading-none">
               CinemaDraft <span className="text-amber-400">Series Studio</span>
             </h1>
-            <p className="text-[10px] text-slate-500 uppercase tracking-[0.4em] font-black mt-1.5 flex items-center gap-2">
+            <p className="text-xs text-slate-300 uppercase tracking-widest font-bold mt-1.5 flex items-center gap-2">
               {bible?.seriesTitle || 'Agentic Production House'}
               {bible && <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-[0_0_5px_rgba(52,211,153,1)]" />}
             </p>
@@ -80,7 +80,7 @@ export default function App() {
           <div className="flex items-center bg-white/5 rounded-2xl p-1.5 border border-white/10 gap-1 mr-4">
             <button 
               onClick={handleImportClick}
-              className="px-4 py-2 hover:bg-white/5 text-slate-400 hover:text-white rounded-xl transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest"
+              className="px-4 py-2 hover:bg-white/5 text-slate-300 hover:text-white rounded-xl transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-widest focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-400"
               title="Import Project JSON"
             >
               <span className="material-symbols-outlined text-lg">upload_file</span>
@@ -90,7 +90,7 @@ export default function App() {
               <button 
                 onClick={handleExport}
                 disabled={isExporting}
-                className="px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-800 disabled:text-slate-600 text-black rounded-xl transition-all flex items-center gap-2 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-amber-900/20"
+                className="px-4 py-2 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-800 disabled:text-slate-400 text-black rounded-xl transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-widest shadow-lg shadow-amber-900/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-400 disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Export Project JSON"
               >
                 <span className="material-symbols-outlined text-lg">{isExporting ? 'sync' : 'save'}</span>
@@ -101,21 +101,21 @@ export default function App() {
           {activeView !== 'architect' && (
             <button 
               onClick={() => setActiveView('dashboard')}
-              className={`flex items-center gap-3 px-6 py-2.5 rounded-2xl border transition-all ${
+              className={`focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-400 flex items-center gap-3 px-6 py-2.5 rounded-2xl border transition-all ${
                 activeView === 'dashboard' 
                   ? 'border-amber-400 bg-amber-400/10 text-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.1)]' 
-                  : 'border-white/10 bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'
+                  : 'border-white/10 bg-white/5 text-slate-300 hover:text-white hover:bg-white/10'
               }`}
             >
               <span className="material-symbols-outlined text-xl">dashboard</span>
-              <span className="text-[11px] font-black uppercase tracking-widest">Dashboard</span>
+              <span className="text-sm font-bold uppercase tracking-widest">Dashboard</span>
             </button>
           )}
            <div className="flex flex-col items-end border-l border-white/10 pl-6 ml-2">
-              <span className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Runtime Integrity</span>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Runtime Integrity</span>
               <div className="flex items-center gap-2 mt-1">
                 <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.5)]" />
-                <span className="text-[11px] text-emerald-400 font-mono font-bold uppercase tracking-tighter italic">Nodes_Online</span>
+                <span className="text-sm text-emerald-400 font-mono font-bold uppercase tracking-tighter italic">Nodes_Online</span>
               </div>
            </div>
         </div>
@@ -131,6 +131,7 @@ export default function App() {
             <EpisodeDashboard 
               bible={bible} 
               onSelectEpisode={startEpisodeProduction}
+              onUpdateBible={updateBible}
             />
           )}
           {activeView === 'production' && bible && bible.activeEpisodeIndex !== null && (
@@ -146,21 +147,21 @@ export default function App() {
       <footer className="h-12 bg-[#0a0a0a] border-t border-white/10 flex items-center px-8 justify-between shrink-0">
         <div className="flex gap-10">
           <div className="flex items-center gap-3">
-            <span className="text-[10px] font-mono text-slate-600 uppercase tracking-tighter">Status:</span>
-            <span className="text-[11px] font-black text-amber-500 uppercase tracking-[0.25em]">
+            <span className="text-xs font-mono text-slate-400 uppercase tracking-tighter">Status:</span>
+            <span className="text-sm font-bold text-amber-500 uppercase tracking-widest">
               {bible ? 'Production Environment Ready' : 'Awaiting Manifest Initialization'}
             </span>
           </div>
           {bible && (
             <div className="flex items-center gap-3">
-              <span className="text-[10px] font-mono text-slate-600 uppercase tracking-tighter">Capacity:</span>
-              <span className="text-[11px] font-black text-amber-400">{bible.episodes.length} Episodes</span>
+              <span className="text-xs font-mono text-slate-400 uppercase tracking-tighter">Capacity:</span>
+              <span className="text-sm font-bold text-amber-400">{bible.episodes.length} Episodes</span>
             </div>
           )}
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-[10px] font-mono text-slate-600 uppercase tracking-widest italic font-bold">
-            Studio Local Persistence Layer <span className="text-amber-500/50 mx-2">//</span> V1.1.0_CLEAN
+          <span className="text-xs font-mono text-slate-400 uppercase tracking-widest italic font-bold">
+            Studio Local Persistence Layer <span className="text-amber-400/80 mx-2">//</span> V1.1.0_CLEAN
           </span>
         </div>
       </footer>
