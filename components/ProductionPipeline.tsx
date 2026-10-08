@@ -52,6 +52,14 @@ export const ProductionPipeline: React.FC<ProductionPipelineProps> = ({ bible, e
     };
     onUpdateBible({ episodes: updatedEpisodes });
   };
+  const handleUpdateEpisode = (updates: Partial<EpisodeProduction>) => {
+    const updatedEpisodes = [...bible.episodes];
+    updatedEpisodes[episodeIndex] = {
+      ...updatedEpisodes[episodeIndex],
+      ...updates
+    };
+    onUpdateBible({ episodes: updatedEpisodes });
+  };
   const saveMasterVideo = (base64: string, mediaId: string) => {
     const updatedEpisodes = [...bible.episodes];
     updatedEpisodes[episodeIndex] = {
@@ -123,6 +131,7 @@ export const ProductionPipeline: React.FC<ProductionPipelineProps> = ({ bible, e
           <ManifestNode 
             manifest={manifest} 
             onUpdateTimeline={handleUpdateTimeline}
+            onUpdateEpisode={handleUpdateEpisode}
             onSaveMaster={saveMasterVideo} 
             onNavigate={(s) => {
               const updatedEpisodes = [...bible.episodes];

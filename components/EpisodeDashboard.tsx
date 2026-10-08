@@ -58,9 +58,6 @@ export const EpisodeDashboard: React.FC<EpisodeDashboardProps> = ({ bible, onSel
             {bible.episodes.map((ep, index) => {
               const isFullyRendered = ep.stageStatus.render === 'completed';
               const hasMaster = !!ep.masterBase64;
-              
-              // sequential unlock logic: episode 1 is always unlocked. 
-              // others unlock if the previous one is fully rendered.
               const isUnlocked = index === 0 || bible.episodes[index - 1].stageStatus.render === 'completed';
               return (
                 <div key={index} className="group relative">
@@ -74,7 +71,18 @@ export const EpisodeDashboard: React.FC<EpisodeDashboardProps> = ({ bible, onSel
                           : 'border-white/10 hover:border-amber-400/50 hover:-translate-y-2 cursor-pointer'
                     }`}
                   >
-                    {/* Hover-only Lock Overlay */}
+                    {/* Hover Play Button for completed episodes */}
+                    {hasMaster && isUnlocked && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-30 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                         <button 
+                           onClick={(e) => { e.stopPropagation(); setActiveMaster(ep.masterBase64!); }}
+                           className="w-20 h-20 bg-amber-500 text-black rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(245,158,11,0.6)] transform scale-75 group-hover:scale-100 transition-all active:scale-90"
+                         >
+                            <span className="material-symbols-outlined text-5xl font-black ml-1">play_arrow</span>
+                         </button>
+                      </div>
+                    )}
+                    {/* Locked Overlay */}
                     {!isUnlocked && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/80 backdrop-blur-md z-20 opacity-0 group-hover:opacity-100 transition-all duration-300">
                         <div className="flex flex-col items-center gap-4 animate-in zoom-in duration-300 p-8 text-center">
@@ -134,20 +142,12 @@ export const EpisodeDashboard: React.FC<EpisodeDashboardProps> = ({ bible, onSel
                       ))}
                     </div>
                   </div>
-                  {hasMaster && isUnlocked && (
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); setActiveMaster(ep.masterBase64!); }}
-                      className="absolute bottom-16 right-4 w-12 h-12 bg-amber-400 text-black rounded-2xl flex items-center justify-center shadow-2xl hover:scale-110 hover:bg-amber-300 active:scale-95 transition-all z-20"
-                    >
-                      <span className="material-symbols-outlined font-black text-2xl">play_arrow</span>
-                    </button>
-                  )}
                 </div>
               );
             })}
           </div>
         </div>
-        {/* Roster Section */}
+        {/* Casting Roster */}
         <div className="space-y-8">
           <div className="flex items-center justify-between border-l-4 border-amber-500 pl-6">
             <h3 className="text-xs font-black text-slate-400 uppercase tracking-[0.5em]">Casting Continuity</h3>

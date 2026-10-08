@@ -133,7 +133,7 @@ export const SeriesArchitectNode: React.FC<SeriesArchitectNodeProps> = ({ onComp
           >
             {isProcessing ? (
               <>
-<span className="material-symbols-outlined animate-spin text-3xl mb-1">refresh</span>
+                <span className="material-symbols-outlined animate-spin text-3xl mb-1">refresh</span>
                 <span className="text-xs uppercase tracking-widest font-black animate-pulse italic">Synthesizing {episodeCount} Eps...</span>
               </>
             ) : (
